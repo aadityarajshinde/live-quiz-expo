@@ -224,11 +224,27 @@ const AdminSettings = () => {
   const resetQuiz = async () => {
     setResetting(true);
     try {
-      // Clear all user answers
+      console.log('Starting complete quiz reset...');
+      
+      // 1. Clear all user answers
+      console.log('Clearing user answers...');
       await supabase.from('user_answers').delete().gt('id', 0);
 
-      // Reset session
-      const { error } = await supabase
+      // 2. Delete all non-admin user profiles (registered users)
+      console.log('Clearing registered users...');
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('is_admin', false);
+
+      if (profileError) {
+        console.error('Error clearing profiles:', profileError);
+        throw profileError;
+      }
+
+      // 3. Reset all quiz sessions
+      console.log('Resetting quiz sessions...');
+      const { error: sessionError } = await supabase
         .from('quiz_sessions')
         .update({
           is_active: false,
@@ -239,18 +255,23 @@ const AdminSettings = () => {
           total_questions: 0,
           phase_end_time: null,
         })
-        .eq('is_active', true);
+        .gt('id', 0); // Update all sessions, not just active ones
 
-      if (error) throw error;
+      if (sessionError) {
+        console.error('Error resetting sessions:', sessionError);
+        throw sessionError;
+      }
 
+      console.log('Quiz reset completed successfully');
       toast({
-        title: "Success",
-        description: "Quiz reset successfully!",
+        title: "Complete Reset Successful!",
+        description: "All quiz data, user registrations, and answers have been cleared. Registration is now open for new users.",
       });
     } catch (error: any) {
+      console.error('Reset failed:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to reset quiz",
+        title: "Reset Failed",
+        description: error.message || "Failed to reset quiz data",
         variant: "destructive",
       });
     } finally {
@@ -386,13 +407,13 @@ const AdminSettings = () => {
                 size="lg"
               >
                 <RotateCcw className="w-5 h-5 mr-2" />
-                {resetting ? 'Resetting...' : 'Reset Quiz'}
+                {resetting ? 'Resetting All Data...' : 'Complete Reset (Clear Everything)'}
               </Button>
 
               <div className="text-sm text-muted-foreground space-y-2">
                 <p><strong>Start Quiz:</strong> Begins the contest and disables new registrations</p>
                 <p><strong>Stop Quiz:</strong> Ends the current quiz and shows final results</p>
-                <p><strong>Reset Quiz:</strong> Clears all data and enables new registrations</p>
+                <p><strong>Complete Reset:</strong> ⚠️ Clears ALL data - user registrations, answers, and sessions. Opens registration for new users.</p>
               </div>
             </CardContent>
           </Card>
