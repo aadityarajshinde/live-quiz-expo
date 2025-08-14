@@ -2,7 +2,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuizState } from '@/hooks/useQuizState';
 import QuestionPanel from './QuestionPanel';
 import LeaderboardPanel from './LeaderboardPanel';
+import QuizTimer from './QuizTimer';
 import { toast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { LogOut, Crown } from 'lucide-react';
 
 const QuizInterface = () => {
   const { user } = useAuth();

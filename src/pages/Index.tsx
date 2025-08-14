@@ -7,11 +7,12 @@ import QuizInterface from '@/components/quiz/QuizInterface';
 import RegistrationForm from '@/components/RegistrationForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Play } from 'lucide-react';
+import { Settings, Play, Users, LogOut } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const { user, loading } = useAuth();
-  const { session } = useQuizState();
+  const { user, loading, signOut } = useAuth();
+  const { session, refetch } = useQuizState();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -43,15 +44,19 @@ const Index = () => {
       .order('question_order');
 
     if (!questions || questions.length === 0) {
-      alert('No questions available. Please upload questions first.');
+      toast({
+        title: "No Questions Available",
+        description: "Please upload questions first before starting the quiz.",
+        variant: "destructive",
+      });
       navigate('/admin');
       return;
     }
 
     const firstQuestion = questions[0];
-    const phaseEndTime = new Date(Date.now() + 40000);
+    const phaseEndTime = new Date(Date.now() + 40000); // 40 seconds for question
 
-    await supabase
+    const { error } = await supabase
       .from('quiz_sessions')
       .update({
         is_active: true,
@@ -63,6 +68,20 @@ const Index = () => {
         phase_end_time: phaseEndTime.toISOString(),
       })
       .eq('id', session.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to start quiz. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Quiz Started!",
+        description: "The Live Expo Quiz has begun. Good luck to all participants!",
+      });
+      refetch();
+    }
   };
 
   if (loading) {
@@ -140,24 +159,49 @@ const Index = () => {
                 )}
               </>
             )}
+            <Button 
+              onClick={signOut}
+              variant="outline"
+              size="sm"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
           </div>
         </div>
 
         <div className="flex justify-center">
           {session?.registration_open ? (
-            <RegistrationForm isRegistrationOpen={true} />
+            <div className="w-full max-w-md">
+              <Card className="shadow-lg">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
+                    <Users className="w-6 h-6" />
+                    Join the Quiz
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RegistrationForm isRegistrationOpen={true} />
+                </CardContent>
+              </Card>
+            </div>
           ) : (
             <Card className="w-full max-w-md mx-auto shadow-lg">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold">
-                  Quiz Starting Soon
+                  Registration Closed
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <div className="p-6 bg-muted rounded-lg">
                   <p className="text-muted-foreground">
-                    Registration is closed. The quiz will begin shortly!
+                    Registration is currently closed. Please wait for the next quiz to begin.
                   </p>
+                  {isAdmin && (
+                    <p className="text-sm text-primary mt-2">
+                      Use the Admin Settings to reset the quiz for new registrations.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -72,11 +72,11 @@ const AdminSettings = () => {
       // Insert new questions
       const formattedQuestions = questions.map((q: any, index: number) => ({
         question: q.question,
-        option_a: q.options[0] || q.option_a,
-        option_b: q.options[1] || q.option_b,
-        option_c: q.options[2] || q.option_c,
-        option_d: q.options[3] || q.option_d,
-        correct_answer: q.correct_answer || q.answer,
+        option_a: q.option_a,
+        option_b: q.option_b,
+        option_c: q.option_c,
+        option_d: q.option_d,
+        correct_answer: q.correct_answer.toUpperCase(),
         question_order: index + 1,
       }));
 
@@ -217,12 +217,18 @@ const AdminSettings = () => {
   const exampleFormat = `[
   {
     "question": "What is the capital of France?",
-    "options": ["London", "Berlin", "Paris", "Madrid"],
+    "option_a": "London",
+    "option_b": "Berlin", 
+    "option_c": "Paris",
+    "option_d": "Madrid",
     "correct_answer": "C"
   },
   {
     "question": "Which planet is known as the Red Planet?",
-    "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+    "option_a": "Venus",
+    "option_b": "Mars",
+    "option_c": "Jupiter", 
+    "option_d": "Saturn",
     "correct_answer": "B"
   }
 ]`;
