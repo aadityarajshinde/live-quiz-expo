@@ -218,9 +218,12 @@ export const useQuizState = () => {
       }, (payload) => {
         console.log('Answers realtime update:', payload);
         setTimeout(() => {
-          if (session) {
-            fetchLeaderboard(session.id);
-          }
+          // Always refetch session to get updated session.id
+          fetchSession().then((sessionData) => {
+            if (sessionData) {
+              fetchLeaderboard(sessionData.id);
+            }
+          });
         }, 100);
       })
       .subscribe();

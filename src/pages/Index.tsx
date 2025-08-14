@@ -96,7 +96,7 @@ const Index = () => {
     );
   }
 
-  // Show quiz interface if quiz is active
+  // Show quiz interface if quiz is active and in question/results phase
   if (session?.is_active && (session.phase === 'question' || session.phase === 'results')) {
     return <QuizInterface />;
   }
@@ -106,14 +106,8 @@ const Index = () => {
     return <QuizInterface />;
   }
 
-  // Show waiting screen for regular users when quiz is active but they're registered
-  if (!isAdmin && session && session.is_active && (session.phase === 'pre-quiz')) {
-    console.log('Regular user detected, quiz in pre-phase, showing waiting screen');
-    return <UserWaitingScreen />;
-  }
-
-  // Show waiting screen for regular users who are already registered/logged in
-  if (!isAdmin && user && session) {
+  // Show waiting screen for regular users who are authenticated
+  if (!isAdmin && user) {
     console.log('Regular user is authenticated, showing waiting screen');
     return <UserWaitingScreen />;
   }
