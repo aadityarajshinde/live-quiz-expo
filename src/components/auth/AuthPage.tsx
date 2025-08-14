@@ -150,7 +150,7 @@ const AuthPage = () => {
             <div className="border-t pt-4">
               <p className="font-semibold">Admin Access:</p>
               <p className="text-xs">
-                Email: admin@liveexpoquiz.com<br />
+                Email: admin@quiz-app.com<br />
                 Password: admin123
               </p>
             </div>
