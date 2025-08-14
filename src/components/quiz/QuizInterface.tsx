@@ -139,7 +139,11 @@ const QuizInterface = () => {
 
   // Check if user has answered current question
   const userAnswer = leaderboard.find(entry => entry.user_id === user?.id);
-  const hasAnswered = !!userAnswer?.latest_answer && currentQuestion?.id === session?.current_question_id;
+  const hasAnswered = !!userAnswer?.latest_answer;
+  
+  // Get user's answer details for the current question
+  const userSelectedAnswer = userAnswer?.latest_answer;
+  const userAnswerCorrect = userAnswer?.is_correct;
 
   if (loading) {
     return (
@@ -222,8 +226,8 @@ const QuizInterface = () => {
               onAnswerSubmit={handleAnswerSubmit}
               hasAnswered={hasAnswered}
               correctAnswer={session.phase === 'results' ? currentQuestion?.correct_answer : undefined}
-              userSelectedAnswer={userAnswer?.latest_answer}
-              userAnswerCorrect={userAnswer?.is_correct}
+              userSelectedAnswer={userSelectedAnswer}
+              userAnswerCorrect={userAnswerCorrect}
             />
           </div>
 
