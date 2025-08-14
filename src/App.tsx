@@ -1,26 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-green-600 bg-clip-text text-transparent">
-          Live Expo Quiz
-        </h1>
-        <p className="text-xl text-gray-600">Welcome to the quiz app!</p>
-      </div>
-    </div>
-  );
-};
-
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="*" element={<div>Page not found</div>} />
-      </Routes>
-    </BrowserRouter>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-4">
+          Live Expo Quiz
+        </h1>
+        <p className="text-xl">Welcome to the quiz app!</p>
+        <div className="mt-8 space-y-4">
+          <button className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+            Get Started
+          </button>
+          <div className="text-sm text-gray-500">
+            Basic app loaded successfully
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
