@@ -22,17 +22,30 @@ const Index = () => {
 
   const checkAdminStatus = async () => {
     if (!user) {
+      console.log('No user found');
       setIsAdmin(false);
       return;
     }
 
-    const { data } = await supabase
+    console.log('Checking admin status for user:', user.id, user.email);
+    
+    const { data, error } = await supabase
       .from('profiles')
       .select('is_admin')
       .eq('user_id', user.id)
       .single();
 
-    setIsAdmin(data?.is_admin || false);
+    console.log('Admin check result:', { data, error });
+    
+    if (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
+      return;
+    }
+
+    const adminStatus = data?.is_admin || false;
+    console.log('Setting admin status to:', adminStatus);
+    setIsAdmin(adminStatus);
   };
 
   const handleStartQuiz = async () => {
