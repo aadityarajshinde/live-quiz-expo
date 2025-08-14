@@ -95,18 +95,17 @@ const AdminDashboard = () => {
   }, [isAdmin]);
 
   const fetchQuizData = async () => {
-    // Fetch session data
+    // Fetch latest session data (active or inactive)
     const { data: sessionData } = await supabase
       .from('quiz_sessions')
       .select('*')
-      .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
+    setSession(sessionData);
+    
     if (sessionData) {
-      setSession(sessionData);
-      
       // Fetch current question if there is one
       if (sessionData.current_question_id) {
         const { data: questionData } = await supabase
@@ -181,7 +180,15 @@ const AdminDashboard = () => {
   };
 
   const handleStartQuiz = async () => {
-    if (!session) return;
+    if (!session) {
+      toast({
+        title: "No Quiz Session",
+        description: "Please create a quiz session first in Admin Settings.",
+        variant: "destructive",
+      });
+      navigate('/admin');
+      return;
+    }
 
     if (allQuestions.length === 0) {
       toast({
