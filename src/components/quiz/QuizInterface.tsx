@@ -1,5 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useQuizState } from '@/hooks/useQuizState';
+import { useQuizController } from '@/hooks/useQuizController';
 import QuestionPanel from './QuestionPanel';
 import LeaderboardPanel from './LeaderboardPanel';
 import QuizTimer from './QuizTimer';
@@ -18,6 +19,9 @@ const QuizInterface = () => {
     loading, 
     submitAnswer 
   } = useQuizState();
+  
+  // Initialize quiz controller for admins
+  useQuizController();
 
   const handleAnswerSubmit = async (answer: string) => {
     if (!user || !session || !currentQuestion) return;
