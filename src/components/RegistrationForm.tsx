@@ -22,6 +22,12 @@ const RegistrationForm = ({ isRegistrationOpen }: RegistrationFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent registration if registration is closed
+    if (!isRegistrationOpen) {
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
