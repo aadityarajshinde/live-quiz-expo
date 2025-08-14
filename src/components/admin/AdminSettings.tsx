@@ -136,7 +136,7 @@ const AdminSettings = () => {
   const startQuiz = async () => {
     setStarting(true);
     try {
-      // Get all questions count
+      // Get all questions count (admins can access the main table)
       const { data: questions, error: questionsError } = await supabase
         .from('quiz_questions')
         .select('id')

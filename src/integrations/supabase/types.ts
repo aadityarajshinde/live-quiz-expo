@@ -125,6 +125,13 @@ export type Database = {
             referencedRelation: "quiz_questions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "quiz_sessions_current_question_id_fkey"
+            columns: ["current_question_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_questions_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_answers: {
@@ -164,6 +171,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "user_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_questions_secure"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "user_answers_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
@@ -174,12 +188,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      quiz_questions_secure: {
+        Row: {
+          correct_answer: string | null
+          created_at: string | null
+          id: string | null
+          option_a: string | null
+          option_b: string | null
+          option_c: string | null
+          option_d: string | null
+          question: string | null
+          question_order: number | null
+        }
+        Insert: {
+          correct_answer?: never
+          created_at?: string | null
+          id?: string | null
+          option_a?: string | null
+          option_b?: string | null
+          option_c?: string | null
+          option_d?: string | null
+          question?: string | null
+          question_order?: number | null
+        }
+        Update: {
+          correct_answer?: never
+          created_at?: string | null
+          id?: string | null
+          option_a?: string | null
+          option_b?: string | null
+          option_c?: string | null
+          option_d?: string | null
+          question?: string | null
+          question_order?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       advance_quiz_phase: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      check_quiz_answer: {
+        Args: { question_id: string; submitted_answer: string }
+        Returns: boolean
       }
       is_current_user_admin: {
         Args: Record<PropertyKey, never>

@@ -74,7 +74,7 @@ export const useQuizState = () => {
     }
 
     const { data, error } = await supabase
-      .from('quiz_questions')
+      .from('quiz_questions_secure')
       .select('*')
       .eq('id', questionId)
       .single();
@@ -146,15 +146,17 @@ export const useQuizState = () => {
 
   // Submit answer
   const submitAnswer = async (questionId: string, selectedAnswer: string, sessionId: string) => {
-    const { data: question } = await supabase
-      .from('quiz_questions')
-      .select('correct_answer')
-      .eq('id', questionId)
-      .single();
+    // Use the secure function to check the answer
+    const { data: isCorrect, error: checkError } = await supabase
+      .rpc('check_quiz_answer', {
+        question_id: questionId,
+        submitted_answer: selectedAnswer
+      });
 
-    if (!question) return;
-
-    const isCorrect = question.correct_answer === selectedAnswer;
+    if (checkError) {
+      console.error('Error checking answer:', checkError);
+      return;
+    }
 
     const { error } = await supabase
       .from('user_answers')
