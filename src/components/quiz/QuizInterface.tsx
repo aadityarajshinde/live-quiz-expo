@@ -139,7 +139,7 @@ const QuizInterface = () => {
 
   // Check if user has answered current question
   const userAnswer = leaderboard.find(entry => entry.user_id === user?.id);
-  const hasAnswered = !!userAnswer?.latest_answer;
+  const hasAnswered = !!userAnswer?.latest_answer && currentQuestion?.id === session?.current_question_id;
 
   if (loading) {
     return (
