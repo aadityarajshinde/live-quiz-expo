@@ -197,26 +197,33 @@ const Index = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-3">
                     <Button 
                       onClick={() => navigate('/admin')}
                       size="lg"
                       className="h-16 text-lg"
                     >
                       <Settings className="w-5 h-5 mr-2" />
-                      Manage Questions & Settings
+                      Manage Settings
                     </Button>
                     
-                    {session?.registration_open === false && !session.is_active && (
-                      <Button 
-                        onClick={handleStartQuiz}
-                        size="lg"
-                        className="h-16 text-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-                      >
-                        <Play className="w-5 h-5 mr-2" />
-                        Start Quiz Contest
-                      </Button>
-                    )}
+                    <Button 
+                      onClick={handleStartQuiz}
+                      size="lg"
+                      className="h-16 text-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                    >
+                      <Play className="w-5 h-5 mr-2" />
+                      Start Quiz Now
+                    </Button>
+
+                    <Button 
+                      onClick={() => navigate('/admin')}
+                      variant="outline"
+                      size="lg"
+                      className="h-16 text-lg"
+                    >
+                      View Quiz & Leaderboard
+                    </Button>
                   </div>
                   
                   <div className="text-center p-4 bg-muted rounded-lg">

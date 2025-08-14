@@ -24,14 +24,19 @@ const AdminSettings = () => {
   const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
-    checkAdminStatus();
+    if (user) {
+      checkAdminStatus();
+    }
   }, [user]);
 
   const checkAdminStatus = async () => {
     if (!user) {
+      console.log('No user found, redirecting to auth');
       navigate('/auth');
       return;
     }
+
+    console.log('Checking admin status for user in AdminSettings:', user.id);
 
     try {
       const { data, error } = await supabase
@@ -40,24 +45,37 @@ const AdminSettings = () => {
         .eq('user_id', user.id)
         .single() as { data: Profile | null; error: any };
 
+      console.log('Admin check response:', { data, error });
+
       if (error) {
         console.error('Error checking admin status in AdminSettings:', error);
+        toast({
+          title: "Error",
+          description: "Failed to verify admin status",
+          variant: "destructive",
+        });
         navigate('/');
         return;
       }
 
       if (!data?.is_admin) {
         console.log('User is not admin, redirecting to home');
+        toast({
+          title: "Access Denied",
+          description: "You don't have admin privileges",
+          variant: "destructive",
+        });
         navigate('/');
         return;
       }
 
       console.log('Admin verified in AdminSettings, setting state');
       setIsAdmin(true);
-      setLoading(false);
     } catch (error) {
       console.error('Exception in checkAdminStatus:', error);
       navigate('/');
+    } finally {
+      setLoading(false);
     }
   };
 
