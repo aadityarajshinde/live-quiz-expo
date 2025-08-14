@@ -34,11 +34,15 @@ const AppContent = () => {
       />
       <Route 
         path="/dashboard" 
-        element={<AdminDashboard />} 
+        element={user ? <AdminDashboard /> : <Navigate to="/auth" replace />} 
       />
       <Route 
         path="/" 
         element={user ? <Index /> : <Navigate to="/auth" replace />} 
+      />
+      <Route 
+        path="*" 
+        element={<Navigate to="/" replace />} 
       />
     </Routes>
   );
