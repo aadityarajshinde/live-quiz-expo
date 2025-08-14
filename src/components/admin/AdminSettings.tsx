@@ -302,9 +302,16 @@ const AdminSettings = () => {
             Admin Settings
           </h1>
           <div className="flex gap-2">
-            <Button onClick={() => navigate('/')} variant="outline" size="sm">
+            <Button onClick={() => {
+              console.log('Navigating to dashboard from AdminSettings...');
+              navigate('/dashboard');
+            }} variant="outline" size="sm">
               <Home className="w-4 h-4 mr-2" />
               Dashboard
+            </Button>
+            <Button onClick={() => navigate('/')} variant="outline" size="sm">
+              <Home className="w-4 h-4 mr-2" />
+              Home
             </Button>
             <Button onClick={handleSignOut} variant="outline" size="sm">
               <LogOut className="w-4 h-4 mr-2" />

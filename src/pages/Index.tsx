@@ -107,6 +107,13 @@ const Index = () => {
 
   // Show waiting screen for regular users when quiz is not active
   if (!isAdmin && session && !session.is_active) {
+    console.log('Regular user detected, showing waiting screen');
+    return <UserWaitingScreen />;
+  }
+
+  // For regular users when quiz is not started yet (no session or registration still open)
+  if (!isAdmin && (!session || session.registration_open)) {
+    console.log('Regular user detected, no quiz started yet, showing waiting screen');
     return <UserWaitingScreen />;
   }
 
