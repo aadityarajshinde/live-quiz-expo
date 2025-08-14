@@ -322,7 +322,7 @@ const AdminSettings = () => {
       console.log('Quiz reset completed successfully');
       toast({
         title: "Complete Reset Successful!",
-        description: "All quiz data, user registrations, and answers have been cleared. You can now start registration again.",
+        description: "All quiz data cleared. Use 'Start Registration' to allow new users to register.",
       });
       fetchSession(); // Refresh session data
     } catch (error: any) {

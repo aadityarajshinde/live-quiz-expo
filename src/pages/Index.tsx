@@ -225,7 +225,7 @@ const Index = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <RegistrationForm isRegistrationOpen={true} />
+                    <RegistrationForm isRegistrationOpen={session?.registration_open || false} />
                   </CardContent>
                 </Card>
               </div>
