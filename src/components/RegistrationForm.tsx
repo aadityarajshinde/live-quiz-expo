@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 interface RegistrationFormProps {
   isRegistrationOpen: boolean;
@@ -39,37 +41,56 @@ const RegistrationForm = ({ isRegistrationOpen }: RegistrationFormProps) => {
 
   if (!isRegistrationOpen) {
     return (
-      <Card className="w-full max-w-md mx-auto shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Registration Closed
-          </CardTitle>
-          <CardDescription>
-            Registration is currently closed. Please wait for the next quiz to begin.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
-          <div className="p-6 bg-muted rounded-lg">
-            <p className="text-muted-foreground">
-              The quiz is currently in progress. Check back later for the next session!
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="w-full max-w-md mx-auto space-y-4">
+        {/* Registration Status Alert - Closed */}
+        <Alert className="border-destructive/50 text-destructive">
+          <XCircle className="h-4 w-4" />
+          <AlertDescription className="font-medium">
+            Registration is currently closed
+          </AlertDescription>
+        </Alert>
+        
+        <Card className="shadow-lg">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Registration Closed
+            </CardTitle>
+            <CardDescription>
+              Registration is currently closed. Please wait for the admin to open registration.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="p-6 bg-muted rounded-lg">
+              <p className="text-muted-foreground">
+                The admin will open registration when ready. Please wait for the registration to begin!
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          Join the Quiz
-        </CardTitle>
-        <CardDescription>
-          Register to participate in the Live Expo Quiz
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="w-full max-w-md mx-auto space-y-4">
+      {/* Registration Status Alert - Open */}
+      <Alert className="border-green-500/50 text-green-700 bg-green-50">
+        <CheckCircle className="h-4 w-4" />
+        <AlertDescription className="font-medium">
+          Registration is open - Join now!
+        </AlertDescription>
+      </Alert>
+      
+      <Card className="shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Join the Quiz
+          </CardTitle>
+          <CardDescription>
+            Register to participate in the Live Expo Quiz
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
@@ -113,6 +134,7 @@ const RegistrationForm = ({ isRegistrationOpen }: RegistrationFormProps) => {
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 };
 
