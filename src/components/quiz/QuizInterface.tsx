@@ -173,7 +173,7 @@ const QuizInterface = () => {
             </div>
             {isAdmin && (
               <div className="flex gap-2">
-                <Button onClick={() => navigate('/')} variant="outline" size="sm">
+                <Button onClick={() => navigate('/dashboard')} variant="outline" size="sm">
                   <Home className="w-4 h-4 mr-2" />
                   Dashboard
                 </Button>

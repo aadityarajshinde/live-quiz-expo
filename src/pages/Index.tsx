@@ -157,7 +157,10 @@ const Index = () => {
             <CardContent className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <Button 
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => {
+                    console.log('Navigating to dashboard...');
+                    navigate('/dashboard');
+                  }}
                   size="lg"
                   className="h-20 text-lg bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
                 >

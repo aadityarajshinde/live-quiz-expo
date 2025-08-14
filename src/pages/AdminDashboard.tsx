@@ -35,11 +35,46 @@ const AdminDashboard = () => {
   const [registeredUsers, setRegisteredUsers] = useState<RegisteredUser[]>([]);
   const [allQuestions, setAllQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check admin status
+  useEffect(() => {
+    checkAdminStatus();
+  }, [user]);
+
+  const checkAdminStatus = async () => {
+    console.log('AdminDashboard: Checking admin status...');
+    if (!user) {
+      console.log('AdminDashboard: No user, redirecting to auth');
+      navigate('/auth');
+      return;
+    }
+
+    console.log('AdminDashboard: User found, checking admin status for:', user.email);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('user_id', user.id)
+      .single();
+
+    console.log('AdminDashboard: Admin check response:', { data, error });
+
+    if (error || !data?.is_admin) {
+      console.log('AdminDashboard: Not admin or error, redirecting to home');
+      navigate('/');
+      return;
+    }
+
+    console.log('AdminDashboard: User is admin, setting isAdmin to true');
+    setIsAdmin(true);
+  };
 
   useEffect(() => {
-    fetchRegisteredUsers();
-    fetchAllQuestions();
-  }, []);
+    if (isAdmin) {
+      fetchRegisteredUsers();
+      fetchAllQuestions();
+    }
+  }, [isAdmin]);
 
   const fetchRegisteredUsers = async () => {
     const { data, error } = await supabase
@@ -119,7 +154,7 @@ const AdminDashboard = () => {
     return options[question.correct_answer as keyof typeof options] || 'Unknown';
   };
 
-  if (loading) {
+  if (loading || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
         <div className="text-lg">Loading dashboard...</div>
