@@ -177,6 +177,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      advance_quiz_phase: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       is_current_user_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
