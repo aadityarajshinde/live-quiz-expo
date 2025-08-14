@@ -75,7 +75,7 @@ const QuestionPanel = ({
         </div>
         <QuizTimer 
           timeLeft={timeLeft} 
-          totalTime={phase === 'question' ? 40 : 10} 
+          totalTime={phase === 'question' ? 30 : 10} 
           phase={phase}
         />
       </CardHeader>
@@ -99,7 +99,7 @@ const QuestionPanel = ({
                 variant={
                   isCorrect ? 'default' : 
                   isWrong ? 'destructive' : 
-                  isSelected ? 'secondary' : 
+                  isSelected && phase === 'question' ? 'secondary' : 
                   'outline'
                 }
                 size="lg"
@@ -108,17 +108,17 @@ const QuestionPanel = ({
                     ? 'hover:bg-primary/10 cursor-pointer' 
                     : 'cursor-default'
                 } ${
-                  isCorrect ? 'bg-accent hover:bg-accent' :
-                  isWrong ? 'bg-destructive hover:bg-destructive' : ''
+                  isCorrect ? 'bg-green-500 hover:bg-green-500 text-white' :
+                  isWrong ? 'bg-red-500 hover:bg-red-500 text-white' : ''
                 }`}
                 onClick={() => handleAnswerSelect(option.key)}
                 disabled={phase === 'results' || hasAnswered}
               >
                 <div className="flex items-center gap-3 w-full">
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold ${
-                    isCorrect ? 'border-accent-foreground bg-accent text-accent-foreground' :
-                    isWrong ? 'border-destructive-foreground bg-destructive text-destructive-foreground' :
-                    isSelected ? 'border-primary bg-primary text-primary-foreground' :
+                    isCorrect ? 'border-white bg-green-500 text-white' :
+                    isWrong ? 'border-white bg-red-500 text-white' :
+                    isSelected && phase === 'question' ? 'border-primary bg-primary text-primary-foreground' :
                     'border-muted-foreground'
                   }`}>
                     {option.key}
@@ -126,8 +126,8 @@ const QuestionPanel = ({
                   <span className="flex-1">{option.text}</span>
                   {phase === 'results' && (
                     <>
-                      {isCorrect && <CheckCircle className="w-5 h-5 text-accent-foreground" />}
-                      {isWrong && <XCircle className="w-5 h-5 text-destructive-foreground" />}
+                      {isCorrect && <CheckCircle className="w-5 h-5 text-white" />}
+                      {isWrong && <XCircle className="w-5 h-5 text-white" />}
                     </>
                   )}
                 </div>
@@ -144,8 +144,8 @@ const QuestionPanel = ({
           </div>
         )}
 
-        {/* Show loading message during results phase */}
-        {phase === 'results' && (
+        {/* Show loading message during results phase only if more questions exist */}
+        {phase === 'results' && questionNumber < totalQuestions && (
           <div className="mt-2 p-4 bg-primary/10 border border-primary/20 rounded-lg">
             <div className="flex items-center justify-center gap-3">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>

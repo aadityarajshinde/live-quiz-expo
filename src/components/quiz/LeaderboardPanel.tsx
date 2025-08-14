@@ -94,7 +94,7 @@ const LeaderboardPanel = ({ leaderboard, phase, showAnswers = false }: Leaderboa
                       </div>
                       <div>
                         <p className="font-semibold text-sm">{entry.name}</p>
-                        {showAnswers && entry.latest_answer && (
+                        {(phase === 'results' || phase === 'finished') && entry.latest_answer && (
                           <div className="flex items-center gap-1 mt-1">
                             <span className="text-xs text-muted-foreground">
                               Answer: {entry.latest_answer}
@@ -102,9 +102,9 @@ const LeaderboardPanel = ({ leaderboard, phase, showAnswers = false }: Leaderboa
                             {entry.is_correct !== undefined && (
                               <>
                                 {entry.is_correct ? (
-                                  <CheckCircle className="w-3 h-3 text-accent" />
+                                  <CheckCircle className="w-3 h-3 text-green-500" />
                                 ) : (
-                                  <XCircle className="w-3 h-3 text-destructive" />
+                                  <XCircle className="w-3 h-3 text-red-500" />
                                 )}
                               </>
                             )}
