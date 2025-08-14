@@ -123,8 +123,8 @@ export const useQuizState = () => {
         userScores[answer.user_id] = { score: 0 };
       }
       
-      // Only count scores during results phase or finished phase to prevent immediate score updates
-      if (session?.phase === 'results' || session?.phase === 'finished') {
+      // Count scores for all phases except pre-quiz and question to show immediate feedback
+      if (session?.phase !== 'pre-quiz' && session?.phase !== 'question') {
         if (answer.is_correct) {
           userScores[answer.user_id].score += 1;
         }
