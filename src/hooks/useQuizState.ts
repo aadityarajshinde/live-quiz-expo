@@ -200,8 +200,12 @@ export const useQuizState = () => {
         event: '*',
         schema: 'public',
         table: 'quiz_sessions'
-      }, () => {
-        fetchSession();
+      }, (payload) => {
+        console.log('Session realtime update:', payload);
+        // Add small delay to ensure database consistency
+        setTimeout(() => {
+          fetchSession();
+        }, 100);
       })
       .subscribe();
 
@@ -211,10 +215,13 @@ export const useQuizState = () => {
         event: '*',
         schema: 'public',
         table: 'user_answers'
-      }, () => {
-        if (session) {
-          fetchLeaderboard(session.id);
-        }
+      }, (payload) => {
+        console.log('Answers realtime update:', payload);
+        setTimeout(() => {
+          if (session) {
+            fetchLeaderboard(session.id);
+          }
+        }, 100);
       })
       .subscribe();
 
@@ -222,7 +229,7 @@ export const useQuizState = () => {
       supabase.removeChannel(sessionChannel);
       supabase.removeChannel(answersChannel);
     };
-  }, [session?.id]);
+  }, []); // Remove dependency to always listen for changes
 
   // Initial data fetch
   useEffect(() => {

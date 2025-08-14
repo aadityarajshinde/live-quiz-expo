@@ -299,7 +299,25 @@ const AdminSettings = () => {
         throw profileError;
       }
 
-      // 3. Reset all quiz sessions (update all rows)
+      // 3. Get all non-admin users and sign them out from auth
+      console.log('Clearing user sessions...');
+      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+      
+      if (usersError) {
+        console.warn('Warning: Could not list users for session cleanup:', usersError);
+      } else if (users) {
+        // Delete non-admin users from auth.users
+        for (const authUser of users) {
+          if (authUser.email !== 'admin@quiz-app.com') {
+            const { error: deleteError } = await supabase.auth.admin.deleteUser(authUser.id);
+            if (deleteError) {
+              console.warn(`Warning: Could not delete user ${authUser.email}:`, deleteError);
+            }
+          }
+        }
+      }
+
+      // 4. Reset all quiz sessions (update all rows)
       console.log('Resetting quiz sessions...');
       const { error: sessionError } = await supabase
         .from('quiz_sessions')
@@ -322,7 +340,7 @@ const AdminSettings = () => {
       console.log('Quiz reset completed successfully');
       toast({
         title: "Complete Reset Successful!",
-        description: "All quiz data cleared. Use 'Start Registration' to allow new users to register.",
+        description: "All quiz data cleared and user sessions terminated. Use 'Start Registration' to allow new users to register.",
       });
       fetchSession(); // Refresh session data
     } catch (error: any) {
