@@ -5,6 +5,7 @@ import { useQuizState } from '@/hooks/useQuizState';
 import { supabase } from '@/integrations/supabase/client';
 import QuizInterface from '@/components/quiz/QuizInterface';
 import RegistrationForm from '@/components/RegistrationForm';
+import RegisteredUsersList from '@/components/admin/RegisteredUsersList';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Settings, Play, Users, LogOut } from 'lucide-react';
@@ -227,35 +228,8 @@ const Index = () => {
                 </CardContent>
               </Card>
               
-              {/* Registration Status Card */}
-              {session?.registration_open ? (
-                <Card className="shadow-lg">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-xl font-bold flex items-center justify-center gap-2">
-                      <Users className="w-5 h-5" />
-                      User Registration (Open)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <RegistrationForm isRegistrationOpen={true} />
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card className="shadow-lg">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-xl font-bold">
-                      Registration Status
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <div className="p-6 bg-muted rounded-lg">
-                      <p className="text-muted-foreground">
-                        Registration is currently closed. Use "Reset Quiz" in Admin Settings to open registration for a new quiz.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Show Registered Users for Admin */}
+              <RegisteredUsersList />
             </div>
           ) : (
             /* Regular user view */
