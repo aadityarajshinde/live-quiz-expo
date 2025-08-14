@@ -112,6 +112,12 @@ const Index = () => {
     return <UserWaitingScreen />;
   }
 
+  // Show waiting screen for regular users who are already registered/logged in
+  if (!isAdmin && user && session) {
+    console.log('Regular user is authenticated, showing waiting screen');
+    return <UserWaitingScreen />;
+  }
+
 
   // Pre-quiz state for admins or when users can register
   return (
