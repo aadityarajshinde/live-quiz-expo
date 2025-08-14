@@ -34,7 +34,7 @@ const AppContent = () => {
       />
       <Route 
         path="/dashboard" 
-        element={user ? <AdminDashboard /> : <Navigate to="/auth" replace />} 
+        element={<AdminDashboard />} 
       />
       <Route 
         path="/" 

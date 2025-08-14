@@ -42,15 +42,20 @@ const AdminDashboard = () => {
 
   // Check admin status
   useEffect(() => {
-    checkAdminStatus();
+    if (user) {
+      checkAdminStatus();
+    } else {
+      console.log('AdminDashboard: Waiting for user to load...');
+    }
   }, [user]);
 
   const checkAdminStatus = async () => {
-    console.log('AdminDashboard: Checking admin status...');
+    console.log('AdminDashboard: Component mounted! Checking admin status...');
+    console.log('AdminDashboard: Current user state:', { user: user?.email, hasUser: !!user });
+    
     if (!user) {
-      console.log('AdminDashboard: No user, redirecting to auth');
-      navigate('/auth');
-      return;
+      console.log('AdminDashboard: No user, waiting for auth to load...');
+      return; // Don't redirect immediately, wait for auth to load
     }
 
     console.log('AdminDashboard: User found, checking admin status for:', user.email);
@@ -70,7 +75,16 @@ const AdminDashboard = () => {
 
     console.log('AdminDashboard: User is admin, setting isAdmin to true');
     setIsAdmin(true);
+    setLoading(false);
   };
+
+  // Handle case where user is not authenticated
+  useEffect(() => {
+    if (user === null && !loading) {
+      console.log('AdminDashboard: No authenticated user, redirecting to auth');
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -221,12 +235,15 @@ const AdminDashboard = () => {
   };
 
   if (loading || !isAdmin) {
+    console.log('AdminDashboard: Loading state or not admin', { loading, isAdmin, user: user?.email });
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
         <div className="text-lg">Loading dashboard...</div>
       </div>
     );
   }
+
+  console.log('AdminDashboard: Rendering dashboard for admin:', user?.email);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 p-6">
