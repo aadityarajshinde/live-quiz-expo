@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Play, RotateCcw, Upload, LogOut } from 'lucide-react';
+import { Play, RotateCcw, Upload, LogOut, Square, Home } from 'lucide-react';
 
 interface Profile {
   is_admin: boolean;
@@ -191,6 +191,36 @@ const AdminSettings = () => {
     }
   };
 
+  const stopQuiz = async () => {
+    setResetting(true);
+    try {
+      // Stop the quiz and set to finished state
+      const { error } = await supabase
+        .from('quiz_sessions')
+        .update({
+          is_active: false,
+          phase: 'finished',
+          phase_end_time: null,
+        })
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Quiz stopped successfully!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to stop quiz",
+        variant: "destructive",
+      });
+    } finally {
+      setResetting(false);
+    }
+  };
+
   const resetQuiz = async () => {
     setResetting(true);
     try {
@@ -271,10 +301,16 @@ const AdminSettings = () => {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Admin Settings
           </h1>
-          <Button onClick={handleSignOut} variant="outline" size="sm">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate('/')} variant="outline" size="sm">
+              <Home className="w-4 h-4 mr-2" />
+              Dashboard
+            </Button>
+            <Button onClick={handleSignOut} variant="outline" size="sm">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -325,6 +361,17 @@ const AdminSettings = () => {
               </Button>
               
               <Button 
+                onClick={stopQuiz} 
+                disabled={resetting}
+                variant="secondary"
+                className="w-full"
+                size="lg"
+              >
+                <Square className="w-5 h-5 mr-2" />
+                {resetting ? 'Stopping...' : 'Stop Quiz'}
+              </Button>
+              
+              <Button 
                 onClick={resetQuiz} 
                 disabled={resetting}
                 variant="destructive"
@@ -337,6 +384,7 @@ const AdminSettings = () => {
 
               <div className="text-sm text-muted-foreground space-y-2">
                 <p><strong>Start Quiz:</strong> Begins the contest and disables new registrations</p>
+                <p><strong>Stop Quiz:</strong> Ends the current quiz and shows final results</p>
                 <p><strong>Reset Quiz:</strong> Clears all data and enables new registrations</p>
               </div>
             </CardContent>
