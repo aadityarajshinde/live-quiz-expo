@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Play, RotateCcw, Upload, LogOut, Square, Home } from 'lucide-react';
+import { Play, RotateCcw, Upload, LogOut, Square, Home, Users } from 'lucide-react';
 
 interface Profile {
   is_admin: boolean;
@@ -22,12 +22,27 @@ const AdminSettings = () => {
   const [uploading, setUploading] = useState(false);
   const [starting, setStarting] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
     if (user) {
       checkAdminStatus();
+      fetchSession();
     }
   }, [user]);
+
+  const fetchSession = async () => {
+    const { data } = await supabase
+      .from('quiz_sessions')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
+    if (data) {
+      setSession(data);
+    }
+  };
 
   const checkAdminStatus = async () => {
     if (!user) {
@@ -129,6 +144,7 @@ const AdminSettings = () => {
         description: `${formattedQuestions.length} questions uploaded successfully`,
       });
       setQuestionsText('');
+      fetchSession(); // Refresh session data
     } catch (error: any) {
       toast({
         title: "Error",
@@ -140,52 +156,78 @@ const AdminSettings = () => {
     }
   };
 
+  const startRegistration = async () => {
+    try {
+      console.log('Starting registration...');
+      const { error } = await supabase
+        .from('quiz_sessions')
+        .update({
+          registration_open: true,
+          phase: 'pre-quiz',
+          is_active: false,
+        })
+        .not('id', 'is', null); // Update all sessions
+
+      if (error) throw error;
+
+      toast({
+        title: "Registration Started!",
+        description: "Users can now register for the quiz.",
+      });
+      fetchSession(); // Refresh session data
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to start registration",
+        variant: "destructive",
+      });
+    }
+  };
+
   const startQuiz = async () => {
     setStarting(true);
     try {
-      // Get all questions count (admins can access the main table)
-      const { data: questions, error: questionsError } = await supabase
+      console.log('Starting quiz...');
+      
+      // Get questions to start quiz
+      const { data: questions } = await supabase
         .from('quiz_questions')
         .select('id')
         .order('question_order');
 
-      if (questionsError) throw questionsError;
-
       if (!questions || questions.length === 0) {
         toast({
-          title: "Error",
-          description: "No questions available. Please upload questions first.",
+          title: "No Questions Available",
+          description: "Please upload questions first before starting the quiz.",
           variant: "destructive",
         });
         return;
       }
 
-      // Get the first question
       const firstQuestion = questions[0];
-
-      // Update session to start quiz
-      const phaseEndTime = new Date(Date.now() + 40000); // 40 seconds for question phase
+      const phaseEndTime = new Date(Date.now() + 40000); // 40 seconds for question
 
       const { error } = await supabase
         .from('quiz_sessions')
         .update({
           is_active: true,
-          registration_open: false,
+          registration_open: false, // Close registration when quiz starts
           phase: 'question',
           current_question_id: firstQuestion.id,
           current_question_number: 1,
           total_questions: questions.length,
           phase_end_time: phaseEndTime.toISOString(),
         })
-        .eq('is_active', false);
+        .not('id', 'is', null); // Update all sessions
 
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Quiz started successfully!",
+        title: "Quiz Started!",
+        description: "The Live Expo Quiz has begun. Registration is now closed.",
       });
       
+      fetchSession(); // Refresh session data
       navigate('/');
     } catch (error: any) {
       toast({
@@ -262,8 +304,8 @@ const AdminSettings = () => {
       const { error: sessionError } = await supabase
         .from('quiz_sessions')
         .update({
+          registration_open: false, // Close registration when reset
           is_active: false,
-          registration_open: true,
           phase: 'pre-quiz',
           current_question_id: null,
           current_question_number: 0,
@@ -280,8 +322,9 @@ const AdminSettings = () => {
       console.log('Quiz reset completed successfully');
       toast({
         title: "Complete Reset Successful!",
-        description: "All quiz data, user registrations, and answers have been cleared. Registration is now open for new users.",
+        description: "All quiz data, user registrations, and answers have been cleared. You can now start registration again.",
       });
+      fetchSession(); // Refresh session data
     } catch (error: any) {
       console.error('Reset failed:', error);
       toast({
@@ -393,27 +436,46 @@ const AdminSettings = () => {
               <CardTitle>Quiz Controls</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button 
-                onClick={startQuiz} 
-                disabled={starting}
-                className="w-full"
-                size="lg"
-              >
-                <Play className="w-5 h-5 mr-2" />
-                {starting ? 'Starting...' : 'Start Quiz Contest'}
-              </Button>
+              {/* Registration Control */}
+              {!session?.registration_open && !session?.is_active && (
+                <Button 
+                  onClick={startRegistration}
+                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                  size="lg"
+                >
+                  <Users className="w-5 h-5 mr-2" />
+                  Start Registration
+                </Button>
+              )}
               
-              <Button 
-                onClick={stopQuiz} 
-                disabled={resetting}
-                variant="secondary"
-                className="w-full"
-                size="lg"
-              >
-                <Square className="w-5 h-5 mr-2" />
-                {resetting ? 'Stopping...' : 'Stop Quiz'}
-              </Button>
+              {/* Quiz Start Control */}
+              {session?.registration_open && !session?.is_active && (
+                <Button 
+                  onClick={startQuiz} 
+                  disabled={starting}
+                  className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                  size="lg"
+                >
+                  <Play className="w-5 h-5 mr-2" />
+                  {starting ? 'Starting Quiz...' : 'Start Quiz Contest'}
+                </Button>
+              )}
               
+              {/* Stop Quiz Control */}
+              {session?.is_active && (
+                <Button 
+                  onClick={stopQuiz} 
+                  disabled={resetting}
+                  variant="secondary"
+                  className="w-full"
+                  size="lg"
+                >
+                  <Square className="w-5 h-5 mr-2" />
+                  {resetting ? 'Stopping...' : 'Stop Quiz'}
+                </Button>
+              )}
+              
+              {/* Reset Control */}
               <Button 
                 onClick={resetQuiz} 
                 disabled={resetting}
@@ -425,10 +487,33 @@ const AdminSettings = () => {
                 {resetting ? 'Resetting All Data...' : 'Complete Reset (Clear Everything)'}
               </Button>
 
+              {/* Status Display */}
+              <div className="p-4 bg-muted rounded-lg">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Registration:</span>
+                    <span className={session?.registration_open ? "text-green-600" : "text-red-600"}>
+                      {session?.registration_open ? "Open" : "Closed"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Quiz Status:</span>
+                    <span className={session?.is_active ? "text-green-600" : "text-gray-600"}>
+                      {session?.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Phase:</span>
+                    <span className="capitalize">{session?.phase || 'Pre-quiz'}</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="text-sm text-muted-foreground space-y-2">
-                <p><strong>Start Quiz:</strong> Begins the contest and disables new registrations</p>
+                <p><strong>Start Registration:</strong> Opens registration for new users</p>
+                <p><strong>Start Quiz:</strong> Begins the contest and closes registration</p>
                 <p><strong>Stop Quiz:</strong> Ends the current quiz and shows final results</p>
-                <p><strong>Complete Reset:</strong> ⚠️ Clears ALL data - user registrations, answers, and sessions. Opens registration for new users.</p>
+                <p><strong>Complete Reset:</strong> ⚠️ Clears ALL data - users, answers, and sessions</p>
               </div>
             </CardContent>
           </Card>
