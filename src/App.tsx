@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import AuthPage from '@/components/auth/AuthPage';
 import Index from '@/pages/Index';
 import AdminSettings from '@/components/admin/AdminSettings';
+import AdminDashboard from '@/pages/AdminDashboard';
 import { useAuth } from '@/hooks/useAuth';
 
 const queryClient = new QueryClient();
@@ -30,6 +31,10 @@ const AppContent = () => {
       <Route 
         path="/admin" 
         element={user ? <AdminSettings /> : <Navigate to="/auth" replace />} 
+      />
+      <Route 
+        path="/dashboard" 
+        element={user ? <AdminDashboard /> : <Navigate to="/auth" replace />} 
       />
       <Route 
         path="/" 
