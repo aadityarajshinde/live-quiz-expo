@@ -15,6 +15,8 @@ interface QuestionPanelProps {
   onAnswerSubmit: (answer: string) => void;
   hasAnswered: boolean;
   correctAnswer?: string;
+  userSelectedAnswer?: string;
+  userAnswerCorrect?: boolean;
 }
 
 const QuestionPanel = ({
@@ -25,7 +27,9 @@ const QuestionPanel = ({
   phase,
   onAnswerSubmit,
   hasAnswered,
-  correctAnswer
+  correctAnswer,
+  userSelectedAnswer,
+  userAnswerCorrect
 }: QuestionPanelProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
@@ -91,7 +95,8 @@ const QuestionPanel = ({
           {options.map((option) => {
             const isSelected = selectedAnswer === option.key;
             const isCorrectAnswer = phase === 'results' && option.key === correctAnswer;
-            const isUserWrong = phase === 'results' && isSelected && option.key !== correctAnswer;
+            const isUserSelected = phase === 'results' && option.key === userSelectedAnswer;
+            const isUserWrong = phase === 'results' && isUserSelected && !userAnswerCorrect;
             
             // During results phase: show correct answer in green, user's wrong answer in red
             let buttonStyle = '';

@@ -222,6 +222,8 @@ const QuizInterface = () => {
               onAnswerSubmit={handleAnswerSubmit}
               hasAnswered={hasAnswered}
               correctAnswer={session.phase === 'results' ? currentQuestion?.correct_answer : undefined}
+              userSelectedAnswer={userAnswer?.latest_answer}
+              userAnswerCorrect={userAnswer?.is_correct}
             />
           </div>
 
