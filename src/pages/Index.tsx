@@ -106,23 +106,12 @@ const Index = () => {
     return <QuizInterface />;
   }
 
-  // Show waiting screen for regular users when quiz is not active
-  if (!isAdmin && session && !session.is_active) {
-    console.log('Regular user detected, showing waiting screen');
+  // Show waiting screen for regular users when quiz is active but they're registered
+  if (!isAdmin && session && session.is_active && (session.phase === 'pre-quiz')) {
+    console.log('Regular user detected, quiz in pre-phase, showing waiting screen');
     return <UserWaitingScreen />;
   }
 
-  // For regular users when registration is closed but no quiz active
-  if (!isAdmin && session && !session.registration_open && !session.is_active) {
-    console.log('Regular user detected, registration closed, showing waiting screen');
-    return <UserWaitingScreen />;
-  }
-
-  // For regular users when no session exists or registration not opened yet
-  if (!isAdmin && (!session || (!session.registration_open && !session.is_active))) {
-    console.log('Regular user detected, no registration available, showing waiting screen');
-    return <UserWaitingScreen />;
-  }
 
   // Pre-quiz state for admins or when users can register
   return (
@@ -214,22 +203,10 @@ const Index = () => {
               </CardContent>
             </Card>
           ) : (
-            // Regular user registration form (only shown when registration is open)
-            session?.registration_open && (
-              <div className="w-full max-w-md">
-                <Card className="shadow-lg">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-                      <Users className="w-6 h-6" />
-                      Join the Quiz
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <RegistrationForm isRegistrationOpen={session?.registration_open || false} />
-                  </CardContent>
-                </Card>
-              </div>
-            )
+            // Regular user registration form - always show with status
+            <div className="w-full max-w-md">
+              <RegistrationForm isRegistrationOpen={session?.registration_open || false} />
+            </div>
           )}
         </div>
       </div>
