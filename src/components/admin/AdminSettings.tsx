@@ -98,7 +98,14 @@ const AdminSettings = () => {
       }
 
       // Clear existing questions
-      await supabase.from('quiz_questions').delete().gt('id', 0);
+      const { error: clearError } = await supabase
+        .from('quiz_questions')
+        .delete()
+        .not('id', 'is', null); // Delete all rows where id is not null (all rows)
+      
+      if (clearError) {
+        throw clearError;
+      }
 
       // Insert new questions
       const formattedQuestions = questions.map((q: any, index: number) => ({
@@ -226,9 +233,17 @@ const AdminSettings = () => {
     try {
       console.log('Starting complete quiz reset...');
       
-      // 1. Clear all user answers
+      // 1. Clear all user answers (delete all rows)
       console.log('Clearing user answers...');
-      await supabase.from('user_answers').delete().gt('id', 0);
+      const { error: answersError } = await supabase
+        .from('user_answers')
+        .delete()
+        .not('id', 'is', null); // Delete all rows where id is not null (all rows)
+
+      if (answersError) {
+        console.error('Error clearing user answers:', answersError);
+        throw answersError;
+      }
 
       // 2. Delete all non-admin user profiles (registered users)
       console.log('Clearing registered users...');
@@ -242,7 +257,7 @@ const AdminSettings = () => {
         throw profileError;
       }
 
-      // 3. Reset all quiz sessions
+      // 3. Reset all quiz sessions (update all rows)
       console.log('Resetting quiz sessions...');
       const { error: sessionError } = await supabase
         .from('quiz_sessions')
@@ -255,7 +270,7 @@ const AdminSettings = () => {
           total_questions: 0,
           phase_end_time: null,
         })
-        .gt('id', 0); // Update all sessions, not just active ones
+        .not('id', 'is', null); // Update all rows where id is not null (all rows)
 
       if (sessionError) {
         console.error('Error resetting sessions:', sessionError);
