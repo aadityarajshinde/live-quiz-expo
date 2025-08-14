@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useQuizState } from '@/hooks/useQuizState';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,12 +29,16 @@ interface QuizQuestion {
 
 const AdminDashboard = () => {
   const { user, signOut } = useAuth();
-  const { session, currentQuestion, leaderboard, refetch } = useQuizState();
   const navigate = useNavigate();
   const [registeredUsers, setRegisteredUsers] = useState<RegisteredUser[]>([]);
   const [allQuestions, setAllQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Use a separate quiz state hook to avoid auto-redirects
+  const [session, setSession] = useState<any>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<any>(null);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
   // Check admin status
   useEffect(() => {
@@ -73,8 +76,71 @@ const AdminDashboard = () => {
     if (isAdmin) {
       fetchRegisteredUsers();
       fetchAllQuestions();
+      fetchQuizData();
     }
   }, [isAdmin]);
+
+  const fetchQuizData = async () => {
+    // Fetch session data
+    const { data: sessionData } = await supabase
+      .from('quiz_sessions')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (sessionData) {
+      setSession(sessionData);
+      
+      // Fetch current question if there is one
+      if (sessionData.current_question_id) {
+        const { data: questionData } = await supabase
+          .from('quiz_questions')
+          .select('*')
+          .eq('id', sessionData.current_question_id)
+          .single();
+        
+        if (questionData) {
+          setCurrentQuestion(questionData);
+        }
+      }
+
+      // Fetch leaderboard
+      const { data: answersData } = await supabase
+        .from('user_answers')
+        .select(`
+          *,
+          profiles!inner(name)
+        `)
+        .eq('session_id', sessionData.id);
+
+      if (answersData) {
+        // Process leaderboard data
+        const leaderboardMap = new Map();
+        answersData.forEach((answer: any) => {
+          const userId = answer.user_id;
+          if (!leaderboardMap.has(userId)) {
+            leaderboardMap.set(userId, {
+              user_id: userId,
+              name: answer.profiles.name,
+              score: 0,
+              latest_answer: null
+            });
+          }
+          const entry = leaderboardMap.get(userId);
+          if (answer.is_correct) entry.score += 1;
+          if (answer.question_id === sessionData.current_question_id) {
+            entry.latest_answer = answer.selected_answer;
+          }
+        });
+        
+        const leaderboardArray = Array.from(leaderboardMap.values())
+          .sort((a, b) => b.score - a.score);
+        setLeaderboard(leaderboardArray);
+      }
+    }
+  };
 
   const fetchRegisteredUsers = async () => {
     const { data, error } = await supabase
@@ -140,7 +206,7 @@ const AdminDashboard = () => {
         title: "Quiz Started!",
         description: "The Live Expo Quiz has begun. Good luck to all participants!",
       });
-      refetch();
+      fetchQuizData(); // Refresh data instead of using refetch
     }
   };
 
