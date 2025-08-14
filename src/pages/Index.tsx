@@ -171,40 +171,111 @@ const Index = () => {
         </div>
 
         <div className="flex justify-center">
-          {session?.registration_open ? (
-            <div className="w-full max-w-md">
-              <Card className="shadow-lg">
+          {/* Show admin controls prominently if user is admin */}
+          {isAdmin ? (
+            <div className="w-full max-w-4xl space-y-6">
+              {/* Admin Dashboard Card */}
+              <Card className="shadow-lg bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
                 <CardHeader className="text-center">
                   <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-                    <Users className="w-6 h-6" />
-                    Join the Quiz
+                    <Settings className="w-6 h-6" />
+                    Admin Dashboard
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <RegistrationForm isRegistrationOpen={true} />
+                <CardContent className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Button 
+                      onClick={() => navigate('/admin')}
+                      size="lg"
+                      className="h-16 text-lg"
+                    >
+                      <Settings className="w-5 h-5 mr-2" />
+                      Manage Questions & Settings
+                    </Button>
+                    
+                    {session?.registration_open === false && !session.is_active && (
+                      <Button 
+                        onClick={handleStartQuiz}
+                        size="lg"
+                        className="h-16 text-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                      >
+                        <Play className="w-5 h-5 mr-2" />
+                        Start Quiz Contest
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="text-center p-4 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Quiz Status:</strong> {session?.registration_open ? 'Registration Open' : 'Registration Closed'}
+                      {session?.is_active && ' • Quiz Active'}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
+              
+              {/* Registration Status Card */}
+              {session?.registration_open ? (
+                <Card className="shadow-lg">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl font-bold flex items-center justify-center gap-2">
+                      <Users className="w-5 h-5" />
+                      User Registration (Open)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <RegistrationForm isRegistrationOpen={true} />
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="shadow-lg">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl font-bold">
+                      Registration Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <div className="p-6 bg-muted rounded-lg">
+                      <p className="text-muted-foreground">
+                        Registration is currently closed. Use "Reset Quiz" in Admin Settings to open registration for a new quiz.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           ) : (
-            <Card className="w-full max-w-md mx-auto shadow-lg">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold">
-                  Registration Closed
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <div className="p-6 bg-muted rounded-lg">
-                  <p className="text-muted-foreground">
-                    Registration is currently closed. Please wait for the next quiz to begin.
-                  </p>
-                  {isAdmin && (
-                    <p className="text-sm text-primary mt-2">
-                      Use the Admin Settings to reset the quiz for new registrations.
+            /* Regular user view */
+            session?.registration_open ? (
+              <div className="w-full max-w-md">
+                <Card className="shadow-lg">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
+                      <Users className="w-6 h-6" />
+                      Join the Quiz
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <RegistrationForm isRegistrationOpen={true} />
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card className="w-full max-w-md mx-auto shadow-lg">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-bold">
+                    Registration Closed
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <div className="p-6 bg-muted rounded-lg">
+                    <p className="text-muted-foreground">
+                      Registration is currently closed. Please wait for the next quiz to begin.
                     </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            )
           )}
         </div>
       </div>
