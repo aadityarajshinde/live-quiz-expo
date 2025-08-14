@@ -117,6 +117,7 @@ export const useQuizState = () => {
       userScores[profile.user_id] = { score: 0 };
     });
 
+    // Process answers to calculate scores and get latest answers for current question
     answers?.forEach(answer => {
       if (!userScores[answer.user_id]) {
         userScores[answer.user_id] = { score: 0 };
@@ -126,12 +127,10 @@ export const useQuizState = () => {
         userScores[answer.user_id].score += 1;
       }
       
-      // Store the latest answer for the current question - improved logic
+      // Store the latest answer for the current question (most recent by answered_at)
       if (session?.current_question_id === answer.question_id) {
-        if (!userScores[answer.user_id].latestAnswer) {
-          userScores[answer.user_id].latestAnswer = answer.selected_answer;
-          userScores[answer.user_id].isCorrect = answer.is_correct;
-        }
+        userScores[answer.user_id].latestAnswer = answer.selected_answer;
+        userScores[answer.user_id].isCorrect = answer.is_correct;
       }
     });
 
@@ -194,47 +193,53 @@ export const useQuizState = () => {
     }
   }, [session?.phase_end_time]);
 
-  // Real-time subscriptions
+  // Real-time subscriptions with immediate updates
   useEffect(() => {
     const sessionChannel = supabase
-      .channel('quiz-sessions')
+      .channel('quiz-sessions-live')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'quiz_sessions'
       }, (payload) => {
         console.log('Session realtime update:', payload);
-        // Add small delay to ensure database consistency
-        setTimeout(() => {
-          fetchSession();
-        }, 100);
+        // Immediate update for faster response
+        fetchSession();
       })
       .subscribe();
 
     const answersChannel = supabase
-      .channel('quiz-answers')
+      .channel('quiz-answers-live')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'user_answers'
       }, (payload) => {
         console.log('Answers realtime update:', payload);
-        setTimeout(() => {
-          // Always refetch session to get updated session.id
-          fetchSession().then((sessionData) => {
-            if (sessionData) {
-              fetchLeaderboard(sessionData.id);
-            }
-          });
-        }, 100);
+        // Immediate update for live leaderboard
+        fetchSession().then((sessionData) => {
+          if (sessionData) {
+            fetchLeaderboard(sessionData.id);
+          }
+        });
       })
       .subscribe();
+
+    // Additional polling for critical updates every 2 seconds
+    const pollingInterval = setInterval(() => {
+      fetchSession().then((sessionData) => {
+        if (sessionData) {
+          fetchLeaderboard(sessionData.id);
+        }
+      });
+    }, 2000);
 
     return () => {
       supabase.removeChannel(sessionChannel);
       supabase.removeChannel(answersChannel);
+      clearInterval(pollingInterval);
     };
-  }, []); // Remove dependency to always listen for changes
+  }, []);
 
   // Initial data fetch
   useEffect(() => {

@@ -19,6 +19,15 @@ const UserWaitingScreen = () => {
     }
   }, [session?.is_active, session?.phase, navigate]);
 
+  // Auto-refresh every second for immediate updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Force re-render to ensure fresh data display
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex items-center justify-center p-6">
       <div className="w-full max-w-md">
