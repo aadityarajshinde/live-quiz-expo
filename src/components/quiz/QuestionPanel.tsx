@@ -90,34 +90,43 @@ const QuestionPanel = ({
         <div className="grid gap-3">
           {options.map((option) => {
             const isSelected = selectedAnswer === option.key;
-            const isCorrect = phase === 'results' && option.key === correctAnswer;
-            const isUserCorrect = phase === 'results' && isSelected && option.key === correctAnswer;
+            const isCorrectAnswer = phase === 'results' && option.key === correctAnswer;
             const isUserWrong = phase === 'results' && isSelected && option.key !== correctAnswer;
+            
+            // During results phase: show correct answer in green, user's wrong answer in red
+            let buttonStyle = '';
+            let variant: 'default' | 'destructive' | 'secondary' | 'outline' = 'outline';
+            
+            if (phase === 'results') {
+              if (isCorrectAnswer) {
+                // Always highlight correct answer in green
+                buttonStyle = 'bg-green-500 hover:bg-green-500 text-white border-green-500';
+                variant = 'default';
+              } else if (isUserWrong) {
+                // Highlight user's wrong answer in red
+                buttonStyle = 'bg-red-500 hover:bg-red-500 text-white border-red-500';
+                variant = 'destructive';
+              }
+            } else if (phase === 'question' && isSelected) {
+              variant = 'secondary';
+            }
             
             return (
               <Button
                 key={option.key}
-                variant={
-                  isCorrect ? 'default' : 
-                  isUserWrong ? 'destructive' : 
-                  isSelected && phase === 'question' ? 'secondary' : 
-                  'outline'
-                }
+                variant={variant}
                 size="lg"
                 className={`justify-start text-left h-auto p-4 ${
                   phase === 'question' && !hasAnswered 
                     ? 'hover:bg-primary/10 cursor-pointer' 
                     : 'cursor-default'
-                } ${
-                  isCorrect ? 'bg-green-500 hover:bg-green-500 text-white border-green-500' :
-                  isUserWrong ? 'bg-red-500 hover:bg-red-500 text-white border-red-500' : ''
-                }`}
+                } ${buttonStyle}`}
                 onClick={() => handleAnswerSelect(option.key)}
                 disabled={phase === 'results' || hasAnswered}
               >
                 <div className="flex items-center gap-3 w-full">
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold ${
-                    isCorrect ? 'border-white bg-green-500 text-white' :
+                    isCorrectAnswer ? 'border-white bg-green-500 text-white' :
                     isUserWrong ? 'border-white bg-red-500 text-white' :
                     isSelected && phase === 'question' ? 'border-primary bg-primary text-primary-foreground' :
                     'border-muted-foreground'
@@ -127,7 +136,7 @@ const QuestionPanel = ({
                   <span className="flex-1">{option.text}</span>
                   {phase === 'results' && (
                     <>
-                      {isCorrect && <CheckCircle className="w-5 h-5 text-white" />}
+                      {isCorrectAnswer && <CheckCircle className="w-5 h-5 text-white" />}
                       {isUserWrong && <XCircle className="w-5 h-5 text-white" />}
                     </>
                   )}

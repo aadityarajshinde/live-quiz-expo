@@ -123,8 +123,11 @@ export const useQuizState = () => {
         userScores[answer.user_id] = { score: 0 };
       }
       
-      if (answer.is_correct) {
-        userScores[answer.user_id].score += 1;
+      // Only count scores during results phase or finished phase to prevent immediate score updates
+      if (session?.phase === 'results' || session?.phase === 'finished') {
+        if (answer.is_correct) {
+          userScores[answer.user_id].score += 1;
+        }
       }
       
       // Store the latest answer for the current question (most recent by answered_at)

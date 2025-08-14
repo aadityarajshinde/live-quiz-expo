@@ -94,12 +94,12 @@ const LeaderboardPanel = ({ leaderboard, phase, showAnswers = false }: Leaderboa
                       </div>
                       <div>
                         <p className="font-semibold text-sm">{entry.name}</p>
-                        {phase === 'results' && entry.latest_answer && (
+                        {phase === 'results' && entry.latest_answer && entry.is_correct !== undefined && (
                           <div className="flex items-center gap-1 mt-1">
                             <span className={`text-xs px-2 py-1 rounded text-white font-medium ${
                               entry.is_correct ? 'bg-green-500' : 'bg-red-500'
                             }`}>
-                              {entry.latest_answer} {entry.is_correct ? '✓' : '✗'}
+                              Answer: {entry.latest_answer} {entry.is_correct ? '✓' : '✗'}
                             </span>
                           </div>
                         )}
