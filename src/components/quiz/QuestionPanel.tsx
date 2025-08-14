@@ -75,7 +75,7 @@ const QuestionPanel = ({
         </div>
         <QuizTimer 
           timeLeft={timeLeft} 
-          totalTime={phase === 'question' ? 40 : 20} 
+          totalTime={phase === 'question' ? 40 : 10} 
           phase={phase}
         />
       </CardHeader>
@@ -141,6 +141,18 @@ const QuestionPanel = ({
             <p className="text-sm text-muted-foreground">
               Answer submitted! Wait for results...
             </p>
+          </div>
+        )}
+
+        {/* Show loading message during results phase */}
+        {phase === 'results' && (
+          <div className="mt-2 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+            <div className="flex items-center justify-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+              <p className="text-sm font-medium text-primary">
+                Next question loading... ({timeLeft}s)
+              </p>
+            </div>
           </div>
         )}
       </CardContent>

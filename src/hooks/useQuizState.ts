@@ -126,10 +126,12 @@ export const useQuizState = () => {
         userScores[answer.user_id].score += 1;
       }
       
-      // Store the latest answer for the current question
-      if (session?.current_question_id === answer.question_id && !userScores[answer.user_id].latestAnswer) {
-        userScores[answer.user_id].latestAnswer = answer.selected_answer;
-        userScores[answer.user_id].isCorrect = answer.is_correct;
+      // Store the latest answer for the current question - improved logic
+      if (session?.current_question_id === answer.question_id) {
+        if (!userScores[answer.user_id].latestAnswer) {
+          userScores[answer.user_id].latestAnswer = answer.selected_answer;
+          userScores[answer.user_id].isCorrect = answer.is_correct;
+        }
       }
     });
 

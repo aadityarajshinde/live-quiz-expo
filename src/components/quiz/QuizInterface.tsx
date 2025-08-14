@@ -87,8 +87,8 @@ const QuizInterface = () => {
   const resetQuiz = async () => {
     setResetting(true);
     try {
-      // Clear all user answers
-      await supabase.from('user_answers').delete().gt('id', 0);
+      // Clear all user answers using the correct filter
+      await supabase.from('user_answers').delete().not('id', 'is', null);
 
       // Reset session
       const { error } = await supabase
