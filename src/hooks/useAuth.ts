@@ -47,6 +47,24 @@ export const useAuth = () => {
   };
 
   const signUp = async (email: string, password: string, name: string) => {
+    // Check if registration is open before allowing signup
+    const { data: sessionData } = await supabase
+      .from('quiz_sessions')
+      .select('registration_open')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!sessionData?.registration_open) {
+      const error = new Error('Registration is currently closed. Please wait for the admin to open registration.');
+      toast({
+        title: "Registration Closed",
+        description: error.message,
+        variant: "destructive",
+      });
+      return { error };
+    }
+
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({

@@ -31,8 +31,10 @@ const RegistrationForm = ({ isRegistrationOpen }: RegistrationFormProps) => {
     setIsSubmitting(true);
 
     try {
-      await signUp(formData.email, formData.password, formData.name);
-      setFormData({ name: '', email: '', password: '' });
+      const result = await signUp(formData.email, formData.password, formData.name);
+      if (!result.error) {
+        setFormData({ name: '', email: '', password: '' });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -134,7 +136,11 @@ const RegistrationForm = ({ isRegistrationOpen }: RegistrationFormProps) => {
               placeholder="Create a password"
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={isSubmitting || !isRegistrationOpen}
+          >
             {isSubmitting ? 'Registering...' : 'Register for Quiz'}
           </Button>
         </form>
