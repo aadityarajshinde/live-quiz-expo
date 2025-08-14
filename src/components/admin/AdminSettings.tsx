@@ -33,19 +33,32 @@ const AdminSettings = () => {
       return;
     }
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('user_id', user.id)
-      .single() as { data: Profile | null; error: any };
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('user_id', user.id)
+        .single() as { data: Profile | null; error: any };
 
-    if (error || !data?.is_admin) {
+      if (error) {
+        console.error('Error checking admin status in AdminSettings:', error);
+        navigate('/');
+        return;
+      }
+
+      if (!data?.is_admin) {
+        console.log('User is not admin, redirecting to home');
+        navigate('/');
+        return;
+      }
+
+      console.log('Admin verified in AdminSettings, setting state');
+      setIsAdmin(true);
+      setLoading(false);
+    } catch (error) {
+      console.error('Exception in checkAdminStatus:', error);
       navigate('/');
-      return;
     }
-
-    setIsAdmin(true);
-    setLoading(false);
   };
 
   const uploadQuestions = async () => {
